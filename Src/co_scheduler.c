@@ -37,15 +37,18 @@ void coroutine_scheduler_run(scheduler_t *sched)
     while (sched->ready_queue != NULL) 
     {
         coroutine_t *co = sched->ready_queue;
-        sched->ready_queue = co->next;
-        co->state = COROUTINE_RUNNING;
-        sched->current = co;
+        if (COROUTINE_READY == co->state)
+        {
+            sched->ready_queue = co->next;
+            co->state = COROUTINE_RUNNING;
+            sched->current = co;
+        }
 
         // 保存当前调度器上下文，切换至协程
         swapcontext(&sched->main_context, &co->context);
 
         // 协程执行完毕后的清理
-        if (co->state == COROUTINE_FINISHED) 
+        if (COROUTINE_FINISHED == co->state) 
         {
             free(co->stack);
             co->stack = NULL;
