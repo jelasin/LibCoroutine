@@ -1,0 +1,31 @@
+{
+    "files.associations": {
+        "*.c": "c",
+        "random": "cpp",
+        "stdlib.h": "c",
+        "errno.h": "c",
+        "stdio.h": "c",
+        "ucontext.h": "c",
+        "algorithm": "c",
+        "stdint.h": "c",
+        "memory_resource": "c",
+        "numbers": "c",
+        "array": "c",
+        "memory": "c",
+        "functional": "c",
+        "tuple": "c",
+        "utility": "c",
+        "stdbool.h": "c",
+        "bit": "c",
+        "compare": "c",
+        "cstddef": "c",
+        "string": "c",
+        "limits": "c",
+        "new": "c",
+        "co_scheduler.h": "c",
+        "co_types.h": "c",
+        "string.h": "c",
+        "co_control.h": "c",
+        "coroutine.h": "c"
+    }
+}
