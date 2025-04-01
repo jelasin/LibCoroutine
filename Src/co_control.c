@@ -14,7 +14,7 @@ coroutine_t *coroutine_create(scheduler_t *sched, void (*func)(void *), void *ar
     }
 
     co->stack = (char *)malloc(stack_size);
-    if (NULL == co->stack) 
+    if (NULL == co->stack)
     {
         free(co);
         co = NULL;
@@ -75,7 +75,7 @@ void coroutine_yield(scheduler_t *sched)
     }
 
     // 将协程移到就绪队列尾部
-    if (NULL != sched->ready_queue) 
+    if (NULL != sched->ready_queue)
     {
         coroutine_t *tail = sched->ready_queue;
         while (NULL != tail->next) 
@@ -83,8 +83,8 @@ void coroutine_yield(scheduler_t *sched)
             tail = tail->next;
         }
         tail->next = current;
-    } 
-    else 
+    }
+    else
     {
         sched->ready_queue = current;
     }
@@ -95,3 +95,81 @@ void coroutine_yield(scheduler_t *sched)
     swapcontext(&current->context, &sched->main_context);
 }
 
+void coroutine_cond_init(coroutine_cond_t *cond)
+{
+    if (NULL == cond)
+    {
+        return;
+    }
+    cond->waiting_list = NULL;
+    cond->state = COROUTINE_NO; // 初始化为NO
+}
+
+int coroutine_cond_wait(scheduler_t *sched, coroutine_cond_t *cond)
+{
+    coroutine_t *co = sched->current;
+    if (NULL == co || NULL == cond || NULL == sched)
+    {
+        return -1; // 参数错误
+    }
+    // 条件变量状态为OK, 说明并未先执行本协程, 条件已经满足, 直接返回
+    if (cond->state == COROUTINE_OK)
+    {
+        return 0;
+    }
+
+    // 将当前协程加入到条件变量的等待列表
+    if (NULL == cond->waiting_list)
+    {
+        cond->waiting_list = co; // 第一个等待的协程
+    }
+    else
+    {
+        coroutine_t *tail = cond->waiting_list;
+        while (NULL != tail->next) 
+        {
+            tail = tail->next;
+        }
+        tail->next = co; // 加入到等待列表尾部
+    }
+    co->next = NULL; // 确保next指针为NULL
+    co->state = COROUTINE_WAITING; // 等待状态
+
+    swapcontext(&co->context, &sched->main_context);
+    /*
+     * 当协程被唤醒后，会从这里继续执行。
+     * 协程从sched->ready_queue中移除, 加入了cond->waiting_list中, 只有可能被coroutine_cond_signal唤醒, 且条件已经满足.
+     */
+    cond->state = COROUTINE_NO; // 设置条件变量状态为NO, 表示状态已经被消费
+    return 0;
+}
+int coroutine_cond_signal(scheduler_t *sched, coroutine_cond_t *cond)
+{
+    coroutine_t *co = sched->current; // 当前协程
+    if (NULL == co || NULL == cond || NULL == sched)
+    {
+        return -1;
+    }
+
+    while (NULL == cond->waiting_list)
+    {
+        cond->state = COROUTINE_NO; // 没有等待的协程, 设置为而OK
+        co->state = COROUTINE_SIGNALER; // 当前协程是信号发送者, 便于后续调度器处理
+        swapcontext(&co->context, &sched->main_context);
+    }
+
+    cond->state = COROUTINE_OK; // 设置条件变量状态为OK, 表示条件已经满足
+    
+    coroutine_t *waiting_co = cond->waiting_list; // 取出第一个等待的协程
+    cond->waiting_list = waiting_co->next; // 移除等待列表中的第一个协程
+
+    // 将waiting_co从等待列表中移除, 加入到就绪队列头部
+    waiting_co->next = sched->ready_queue;
+    sched->ready_queue = waiting_co;
+    waiting_co->state = COROUTINE_READY; // 设置状态为就绪
+
+    co->state = COROUTINE_SIGNALER; // 当前协程是信号发送者, 便于后续调度器处理
+    swapcontext(&co->context, &sched->main_context);
+    
+    return 0;
+}

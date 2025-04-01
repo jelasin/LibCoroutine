@@ -1,6 +1,6 @@
 # libcoroutine
 
-C 语言实现的协程库, 使用调度器实现协程的切换同步.
+C 语言实现的协程库, 使用调度器实现协程的切换,同步,通信等操作.
 
 ## Usage
 
@@ -19,7 +19,13 @@ main.c 是一个示例文件, 展示了如何使用 libcoroutine 库.
 - `void coroutine_scheduler_destroy(scheduler_t *sched);` 销毁一个调度器.
 - `void coroutine_scheduler_run(scheduler_t *sched);` 运行一个调度器, 直到所有协程执行完毕.
 
+### 协程间通信
+
+- `void coroutine_cond_init(coroutine_cond_t *cond);` 初始化协程条件变量.
+- `int coroutine_cond_signal(scheduler_t *sched, coroutine_cond_t *cond);` 唤醒一个等待在条件变量上的协程.
+- `int coroutine_cond_wait(scheduler_t *sched, coroutine_cond_t *cond);` 等待在条件变量上的协程.
+
 ## Development
 
-- [ ] 增加无栈协程的支持.
-- [ ] 增加更细粒度的控制, 增加协程CID标识, 让用户定义协程的调度策略.
+- [x] 增加协程间通信机制, 支持wait/signal.
+- [ ] 内存模型优化.

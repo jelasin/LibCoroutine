@@ -7,4 +7,10 @@ extern coroutine_t *coroutine_create(scheduler_t *sched, void (*func)(void *), v
 
 extern void coroutine_yield(scheduler_t *sched);
 
+extern void coroutine_cond_init(coroutine_cond_t *cond);
+
+extern int coroutine_cond_wait(scheduler_t *sched, coroutine_cond_t *cond);
+
+extern int coroutine_cond_signal(scheduler_t *sched, coroutine_cond_t *cond);
+
 #endif /* __CO_CONTROL_H__ */

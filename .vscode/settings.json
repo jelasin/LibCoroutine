@@ -26,6 +26,7 @@
         "co_types.h": "c",
         "string.h": "c",
         "co_control.h": "c",
-        "coroutine.h": "c"
+        "coroutine.h": "c",
+        "atomic": "c"
     }
 }
