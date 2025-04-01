@@ -28,4 +28,5 @@ main.c 是一个示例文件, 展示了如何使用 libcoroutine 库.
 ## Development
 
 - [x] 增加协程间通信机制, 支持wait/signal.
+- [x] 动态创建添加协程.
 - [ ] 内存模型优化.
