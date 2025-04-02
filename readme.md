@@ -1,4 +1,4 @@
-# libcoroutine
+# libCoroutine
 
 C 语言实现的协程库, 使用调度器实现协程的动态添加,切换,同步等操作.
 
