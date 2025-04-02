@@ -34,7 +34,7 @@ typedef struct {
 } scheduler_t; 
 
 typedef struct coroutine_cond_t {
-    coroutine_t *waiting_list;
+    coroutine_t *wait_queue;
     ConditionState state;
 } coroutine_cond_t;
 

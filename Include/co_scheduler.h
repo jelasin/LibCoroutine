@@ -1,4 +1,3 @@
-
 #ifndef __CO_SCHEDULER_H__
 #define __CO_SCHEDULER_H__
 
