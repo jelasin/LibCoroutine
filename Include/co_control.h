@@ -13,4 +13,10 @@ extern int coroutine_cond_wait(scheduler_t *sched, coroutine_cond_t *cond);
 
 extern int coroutine_cond_signal(scheduler_t *sched, coroutine_cond_t *cond);
 
+// 设置内存分配函数
+extern void coroutine_set_memory_alloc_ct(void* (*alloc)(size_t size));
+
+// 设置内存释放函数
+extern void coroutine_set_memory_free_ct(void (*release)(void* ptr));
+
 #endif /* __CO_CONTROL_H__ */

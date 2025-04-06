@@ -2,10 +2,28 @@
 
 #include <stdlib.h>
 
+typedef void* (*malloc_func)(size_t size);
+typedef void (*free_func)(void* ptr);
+
+static malloc_func malloc_hook = malloc;
+static free_func free_hook = free;
+
+// 设置内存分配函数
+void coroutine_set_memory_alloc_sh(void* (*alloc)(size_t size))
+{
+    malloc_hook = alloc;
+}
+
+// 设置内存释放函数
+void coroutine_set_memory_free_sh(void (*release)(void* ptr))
+{
+    free_hook = release;
+}
+
 // 调度器初始化
 scheduler_t *coroutine_scheduler_create() 
 {
-    scheduler_t *sched = (scheduler_t *)malloc(sizeof(scheduler_t));
+    scheduler_t *sched = (scheduler_t *)malloc_hook(sizeof(scheduler_t));
     if (NULL == sched) 
     {
         return NULL;
@@ -22,7 +40,7 @@ void coroutine_scheduler_destroy(scheduler_t *sched)
     {
         return;
     }
-    free(sched);
+    free_hook(sched);
     sched = NULL;
 }
 
@@ -68,9 +86,9 @@ void coroutine_scheduler_run(scheduler_t *sched)
         // 协程执行完毕后的清理
         if (COROUTINE_FINISHED == co->state) 
         {
-            free(co->stack);
+            free_hook(co->stack);
             co->stack = NULL;
-            free(co);
+            free_hook(co);
             co = NULL;
         }
         else if (COROUTINE_SUSPENDED == co->state || COROUTINE_SIGNALER == co->state)

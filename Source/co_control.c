@@ -1,31 +1,50 @@
 #include "co_control.h"
 
 #include <stdlib.h>
+
+typedef void* (*malloc_func)(size_t size);
+typedef void (*free_func)(void* ptr);
+
+static malloc_func malloc_hook = malloc;
+static free_func free_hook = free;
+
+// 设置内存分配函数
+void coroutine_set_memory_alloc_ct(void* (*alloc)(size_t size))
+{
+    malloc_hook = alloc;
+}
+
+// 设置内存释放函数
+void coroutine_set_memory_free_ct(void (*release)(void* ptr))
+{
+    free_hook = release;
+}
+
 // 协程入口函数
 static void coroutine_entry(coroutine_t *co);
 
 // 创建协程
 coroutine_t *coroutine_create(scheduler_t *sched, void (*func)(void *), void *arg, size_t stack_size) 
 {
-    coroutine_t *co = (coroutine_t *)malloc(sizeof(coroutine_t));
+    coroutine_t *co = (coroutine_t *)malloc_hook(sizeof(coroutine_t));
     if (NULL == co) 
     {
         return NULL;
     }
 
-    co->stack = (char *)malloc(stack_size);
+    co->stack = (char *)malloc_hook(stack_size);
     if (NULL == co->stack)
     {
-        free(co);
+        free_hook(co);
         co = NULL;
         return NULL;
     }
 
     if (getcontext(&co->context) < 0) 
     {
-        free(co->stack);
+        free_hook(co->stack);
         co->stack = NULL;
-        free(co);
+        free_hook(co);
         co = NULL;
         return NULL;
     }
