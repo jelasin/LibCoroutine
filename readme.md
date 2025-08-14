@@ -30,4 +30,3 @@ main.c 是一个示例文件, 展示了如何使用 libcoroutine 库.
 - [x] 增加协程同步机制, 支持wait/signal.
 - [x] 动态创建添加协程.
 - [x] 支持malloc_hook/free_hook来自定义内存操作.
-- [ ] 支持优先级.
