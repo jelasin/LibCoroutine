@@ -1,4 +1,4 @@
-#include "coroutine.h"
+#include "../Include/coroutine.h"
 #include <stdio.h>
 
 struct arg
@@ -15,7 +15,7 @@ void producer(void *arg)
     for (int i = 0; i < 3; i++)
     {
         printf("Producing %d %d\n", i, ++p->num);
-        coroutine_cond_wait(sched, p->cond); // 等待条件变量
+        co_cond_wait(sched, p->cond); // 等待条件变量
     }
 }
 
@@ -26,7 +26,7 @@ void consumer(void *arg)
     for (int i = 0; i < 3; i++) 
     {
         printf("Consuming %d %d\n", i, --p->num);
-        coroutine_cond_signal(sched, p->cond); // 通知生产者
+        co_cond_signal(sched, p->cond); // 通知生产者
     }
 }
 
@@ -38,25 +38,25 @@ void other(void *arg)
     for (int i = 0; i < 3; i++) 
     {
         printf("other     %d\n", i);
-        coroutine_yield(sched); // 切换到其他协程
+        co_yield(sched); // 切换到其他协程
     }
 }
 
 int main() 
 {
     struct arg arg;
-    scheduler_t *sched = coroutine_scheduler_create();
+    scheduler_t *sched = co_sch_create();
     arg.sched = sched;
     arg.num = 10;
     coroutine_cond_t cond;
-    coroutine_cond_init(&cond); // 初始化条件变量
+    co_cond_init(&cond); // 初始化条件变量
     arg.cond = &cond; // 传递条件变量给协程
 
-    coroutine_create(sched, producer, &arg, 1 << 20); // 1MB栈
-    coroutine_create(sched, consumer, &arg, 1 << 20);
-    coroutine_create(sched, other, &arg, 1 << 20);
+    co_create(sched, producer, &arg, 1 << 20); // 1MB栈
+    co_create(sched, consumer, &arg, 1 << 20);
+    co_create(sched, other, &arg, 1 << 20);
 
-    coroutine_scheduler_run(sched);
-    coroutine_scheduler_destroy(sched);
+    co_sch_run(sched);
+    co_sch_destroy(sched);
     return 0;
 }
