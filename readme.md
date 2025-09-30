@@ -1,32 +1,32 @@
 # libCoroutine
 
-C 语言实现的协程库, 使用调度器实现协程的动态添加,切换,同步等操作.
+A coroutine library implemented in C, using a scheduler to achieve dynamic addition, switching, synchronization, and other operations of coroutines.
 
 ## Usage
 
-main.c 是一个示例文件, 展示了如何使用 libcoroutine 库.
+main.c is an example file demonstrating how to use the libcoroutine library.
 
 ## API
 
-### 协程控制
+### Coroutine Control
 
-- `coroutine_t *co_create(scheduler_t *sched, void (*func)(void *), void *arg, size_t stack_size);` 创建一个协程, 并将其加入调度器的调度队列中.
-- `void co_yield(scheduler_t *sched)` 让出当前协程的执行权, 切换到其他调度器, 并由调度器选择一个调度队列中的协程执行.
+- `coroutine_t *co_create(scheduler_t *sched, void (*func)(void *), void *arg, size_t stack_size);` creates a coroutine and adds it to the scheduler's queue.
+- `void co_yield(scheduler_t *sched)` yields the execution right of the current coroutine, switches to other schedulers, and allows the scheduler to select a coroutine from the queue to execute.
 
-### 协程调度
+### Coroutine Scheduling
 
-- `scheduler_t *co_sch_create();` 创建一个调度器.
-- `void co_sch_destroy(scheduler_t *sched);` 销毁一个调度器.
-- `void co_sch_run(scheduler_t *sched);` 运行一个调度器, 直到所有协程执行完毕.
+- `scheduler_t *co_sch_create();` creates a scheduler.
+- `void co_sch_destroy(scheduler_t *sched);` destroys a scheduler.
+- `void co_sch_run(scheduler_t *sched);` runs a scheduler until all coroutines have finished executing.
 
-### 协程同步
+### Coroutine Synchronization
 
-- `void co_cond_init(coroutine_cond_t *cond);` 初始化协程条件变量.
-- `int co_cond_signal(scheduler_t *sched, coroutine_cond_t *cond);` 唤醒一个等待在条件变量上的协程.
-- `int co_cond_wait(scheduler_t *sched, coroutine_cond_t *cond);` 等待在条件变量上的协程.
+- `void co_cond_init(coroutine_cond_t *cond);` initializes a coroutine condition variable.
+- `int co_cond_signal(scheduler_t *sched, coroutine_cond_t *cond);` wakes up one coroutine waiting on the condition variable.
+- `int co_cond_wait(scheduler_t *sched, coroutine_cond_t *cond);` waits on the condition variable.
 
 ## Development
 
-- [x] 增加协程同步机制, 支持wait/signal.
-- [x] 动态创建添加协程.
-- [x] 支持malloc_hook/free_hook来自定义内存操作.
+- [x] Added coroutine synchronization mechanism, supporting wait/signal.
+- [x] Dynamic creation and addition of coroutines.
+- [x] Support for malloc_hook/free_hook to customize memory operations.
